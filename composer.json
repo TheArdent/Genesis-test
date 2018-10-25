@@ -1,0 +1,7 @@
+{
+  "require": {
+    "vladkens/vk": "0.1.9",
+    "php-amqplib/php-amqplib": "^2.8",
+    "pear/console_table": "^1.3"
+  }
+}

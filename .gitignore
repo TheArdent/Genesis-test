@@ -1,0 +1,7 @@
+# IntelliJ project files
+.idea
+vendor/
+.env
+.tmp
+log.log
+composer.lock

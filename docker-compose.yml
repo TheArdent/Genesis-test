@@ -1,0 +1,57 @@
+version: "2"
+
+services:
+  data:
+    image: busybox
+    container_name: "genesis_data"
+    volumes:
+      - /data
+      - /var/lib/mysql
+
+  mysql:
+    image: mysql:5.6
+    container_name: "genesis_mysql"
+    ports:
+      - "3306:3306"
+    environment:
+      - "MYSQL_DATABASE=genesis"
+      - "MYSQL_ROOT_PASSWORD=secret"
+    volumes_from:
+      - data
+
+  app:
+    image: genesis_skeleton:build
+    build: .
+    container_name: "genesis_app"
+    volumes:
+      - .:/app
+      - ./docker/php/php.ini:/usr/local/etc/php/php.ini
+    depends_on:
+      - mysql
+    command: /usr/local/sbin/php-fpm --allow-to-run-as-root
+
+  demon:
+      image: genesis_skeleton:build
+      container_name: "genesis_daemon"
+      restart: always
+      volumes:
+        - .:/app
+      depends_on:
+        - rabbit
+      command: php /app/index queue
+
+  rabbit:
+    image: "rabbitmq:3-management"
+    container_name: "genesis_rabbitq"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+      RABBITMQ_DEFAULT_USER: "rabbitmq"
+      RABBITMQ_DEFAULT_PASS: "rabbitmq"
+      RABBITMQ_DEFAULT_VHOST: "/"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    labels:
+      NAME: "rabbitmq1"
+    volumes:
+      - .:/app

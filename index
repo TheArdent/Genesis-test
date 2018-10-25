@@ -1,0 +1,23 @@
+#!/usr/bin/env php
+<?php
+
+use Providers\CommandProvider;
+
+require __DIR__.'/vendor/autoload.php';
+
+spl_autoload_register(function ($class_name) {
+    include str_replace('\\', '/', $class_name).'.php';
+});
+
+if (count($argv) > 1) {
+    $command = CommandProvider::getCommand($argv[1]);
+
+    if (! $command) {
+        echo 'Command not found!'.PHP_EOL;
+        die();
+    }
+    /** @var \Commands\Command $command */
+    $command->handle(array_slice($argv, 2));
+} else {
+    echo 'Use command `php index help` or read README.md'.PHP_EOL;
+}
